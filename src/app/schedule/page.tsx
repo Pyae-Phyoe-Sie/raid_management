@@ -56,6 +56,8 @@ export default function Schedule() {
       .then(async () => {
         // Refresh schedules after creation
         await fetchData()
+        setRaidName("")
+        setRaidTime("")
         setLoading(false)
       })
       .catch(error => {
@@ -121,11 +123,22 @@ export default function Schedule() {
               {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
                 className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
               >Registered</button>}
-              {role === RolesType.SuperAdmin && <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                onClick={() => setSelectedScheduleId(schedule.id)}
-              >Check Lists</button>}
+              {role === RolesType.SuperAdmin && 
+              <>
+                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                  onClick={() => setSelectedScheduleId(schedule.id)}
+                >Check Lists</button>
+                <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-2"
+                  onClick={async () => {
+                    if (confirm("Are you sure you want to delete this schedule? This action cannot be undone.")) {
+                      await scheduleService.deleteSchedule(schedule.id)
+                      await fetchData()
+                    }
+                  }}
+                >Delete</button>
+              </>}
             </div>))}
-            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center flex flex-col justify-between items-end rounded-lg shadow-md bg-white">
+            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
               <input 
                 type="text" 
                 placeholder="Raid Name" 
@@ -137,7 +150,7 @@ export default function Schedule() {
                 type="datetime-local" 
                 className="w-full mb-2 p-2 border border-gray-300 rounded"
               />
-              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-auto"
                 onClick={createSchedule}
                 disabled={loading}
               > + Create New Schedule</button>
