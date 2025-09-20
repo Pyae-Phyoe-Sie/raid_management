@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getRoleName } from "@/utli";
 import { ScheduleService } from "@/modules/schedule.service";
 import moment from "moment";
 import { RolesType } from "@/enum";
 import SignUpList from "@/components/SignUpList";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/app/firebase"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
+import { RoleService } from "@/modules/role.service";
 
 export default function Schedule() {
   const [role, setRole] = useState<string | null>("");
@@ -20,11 +20,15 @@ export default function Schedule() {
   const router = useRouter();
   const [signedUp, setSignedUp] = useState<string[]>()
   const [loading, setLoading] = useState(false)
+  const roleService = new RoleService();
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("role") || "";
-    setRole(getRoleName(storedRole));
-    fetchData()
+    const fetchRoleAndData = async () => {
+      const storedRole = localStorage.getItem("role") || "";
+      setRole(await roleService.getRoleName(storedRole));
+      await fetchData();
+    };
+    fetchRoleAndData();
   }, []);
 
   const fetchData = async () => {
