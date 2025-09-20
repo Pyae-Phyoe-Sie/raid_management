@@ -115,6 +115,9 @@ export default function Schedule() {
               <p className="mb-4">Sign-Ups: 
                 <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
               </p>
+              <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-2"
+                onClick={() => setSelectedScheduleId(schedule.id)}
+              >Check Lists</button>
               {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
                 className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                 onClick={() => signUp(schedule.id)}
@@ -125,10 +128,7 @@ export default function Schedule() {
               >Registered</button>}
               {role === RolesType.SuperAdmin && 
               <>
-                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                  onClick={() => setSelectedScheduleId(schedule.id)}
-                >Check Lists</button>
-                <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-2"
+                <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                   onClick={async () => {
                     if (confirm("Are you sure you want to delete this schedule? This action cannot be undone.")) {
                       await scheduleService.deleteSchedule(schedule.id)
