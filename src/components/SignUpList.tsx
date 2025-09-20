@@ -44,20 +44,22 @@ export default function SignUpList({ scheduleId, onClose }: { scheduleId: string
             <table className="min-w-full border border-gray-200 divide-y divide-gray-200 rounded-lg shadow-sm">
                 <thead className="bg-gray-100">
                 <tr>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Sr.</th>
                     <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">User Name</th>
                     <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Time</th>
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                 {list.length > 0 && list.map((s, i) => (
-                    <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 text-sm text-gray-800">{s.user_name}</td>
-                    <td className="px-4 py-2 text-sm text-gray-800">{moment(s.time.seconds * 1000).format("MM-DD-YYYY HH:mm:ss")}</td>
+                    <tr key={i} className={`hover:bg-gray-50 ${i > 14 ? "bg-yellow-100" : "bg-green-100"}`}>
+                        <td className={`px-4 py-2 text-sm text-gray-800`}>{i + 1}</td>
+                        <td className="px-4 py-2 text-sm text-gray-800">{s.user_name}</td>
+                        <td className="px-4 py-2 text-sm text-gray-800">{moment(s.time.seconds * 1000).format("MM-DD-YYYY HH:mm:ss")}</td>
                     </tr>
                 ))}
                 {list.length === 0 && (
                     <tr>
-                    <td colSpan={2} className="px-4 py-2 text-center text-sm text-gray-500">No sign-ups found.</td>
+                        <td colSpan={3} className="px-4 py-2 text-center text-sm text-gray-500">No sign-ups found.</td>
                     </tr>
                 )}
                 </tbody>
