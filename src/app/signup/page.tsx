@@ -2,48 +2,46 @@
 
 import { useState } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "./firebase"
+import { db } from "@/app/firebase"
 import { useRouter } from "next/navigation"
+import { UserService } from "@/modules/user.service"
 
-export default function Login() {
+export default function SignUp() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const userService = new UserService()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
       e.preventDefault();
       setLoading(true);
 
       try {
+          // Check if user already exists
           const usersRef = collection(db, "users");
           const q = query(usersRef, where("name", "==", name));
           const querySnapshot = await getDocs(q);
 
-          if (querySnapshot.empty) {
-              setError("User not found.");
-          } else {
-              const doc = querySnapshot.docs[0];
-              const user = { id: doc.id, ...(doc.data() as Omit<ILoginUser, "id">) };
-
-              if (user.password === password) {
-                  localStorage.setItem("token", user.id);
-                  localStorage.setItem("username", user.name ?? "");
-                  localStorage.setItem("role", user.role ?? "");
-                  console.log("Login successful:", user);
-                  router.push("/schedule");
-              } else {
-                  setError("Incorrect password.");
-              }
+          if (!querySnapshot.empty) {
+              setError("User already exists.");
+              setLoading(false);
+              return;
           }
+
+          // Create new user
+          await userService.createUser(name, password);
+          console.log("Sign Up successful for:", name);
+          router.push("/");
+
       } catch (err) {
-          console.error("Login error:", err);
+          console.error("Sign Up error:", err);
           setError("Something went wrong.");
       } finally {
           setLoading(false);
       }
-  };
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -59,7 +57,7 @@ export default function Login() {
           Your gateway to organizing and joining epic raids.
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Name
@@ -92,16 +90,16 @@ export default function Login() {
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition"
           >
-            Sign In
+            Sign Up
           </button>
         </form>
 
         <p className="text-sm text-center text-gray-500 mt-4">
-          Don't have an account?{" "}
+          Do you have an account?{" "}
           <a className="text-indigo-600 hover:underline"
-            onClick={() => router.push("/signup")}
+            onClick={() => router.push("/")}
           >
-            Sign up
+            Sign In
           </a>
         </p>
         {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}

@@ -1,121 +1,148 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { getRoleName } from "@/utli";
+import { ScheduleService } from "@/modules/schedule.service";
+import moment from "moment";
+import { RolesType } from "@/enum";
+import SignUpList from "@/components/SignUpList";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "@/app/firebase"
+import { useRouter } from "next/navigation";
 
-export default function Login() {
-    const [name, setName] = useState("");
-    const [password, setPassword] = useState("");
-    // const [users, setUsers] = useState<IUser[]>([]);
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState("")
+export default function Schedule() {
+  const [role, setRole] = useState<string | null>("");
+  const [schedules, setSchedules] = useState<ISchedule[]>([]);
+  const scheduleService = new ScheduleService();
+  const [raidName, setRaidName] = useState("");
+  const [raidTime, setRaidTime] = useState("");
+  const [selectedScheduleId, setSelectedScheduleId] = useState("");
+  const router = useRouter();
+  const [signedUp, setSignedUp] = useState<string[]>()
+  const [loading, setLoading] = useState(false)
 
-    const handleLogin = async (e: React.FormEvent) => {
-        console.log("Attempting login with", { name, password });
-        e.preventDefault();
-        setLoading(true);
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role") || "";
+    setRole(getRoleName(storedRole));
+    fetchData()
+  }, []);
 
-        try {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("name", "==", name));
-            const querySnapshot = await getDocs(q);
+  const fetchData = async () => {
+    const data = await scheduleService.fetchSchedules();
 
-            if (querySnapshot.empty) {
-                setError("User not found.");
-            } else {
-                const doc = querySnapshot.docs[0];
-                const user = { id: doc.id, ...(doc.data() as Omit<IUser, "id">) };
+    const schedulesWithSignups = await Promise.all(
+      data.map(async (schedule) => ({
+        ...schedule,
+        signups: await fetchScheduleById(schedule.id),
+      }))
+    );
 
-                if (user.password === password) {
-                    localStorage.setItem("token", user.id);
-                    localStorage.setItem("role", user.role ?? "");
-                    console.log("Login successful:", user);
-                } else {
-                    setError("Incorrect password.");
-                }
-            }
-        } catch (err) {
-            console.error("Login error:", err);
-            setError("Something went wrong.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    setSchedules(schedulesWithSignups)
+    checkAlreadySignedUp()
+  };
 
-    // useEffect(() => {
-    //     // Fetch users after auth
-    //     const fetchUsers = async () => {
-    //     try {
-    //         const usersCollection = collection(db, "users");
-    //         const snapshot = await getDocs(usersCollection);
-    //         const usersList: IUser[] = snapshot.docs.map((doc) => ({
-    //         id: doc.id,
-    //         ...(doc.data() as Omit<IUser, "id">),
-    //         }));
-    //         setUsers(usersList);
-    //         console.log("Fetched users:", usersList);
-    //     } catch (error) {
-    //         console.error("Error fetching users:", error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    //     };
+  function createSchedule() {
+    if (!raidName || !raidTime) {
+      alert("Please provide both raid name and time.");
+      return;
+    }
 
-    //     fetchUsers();
-    // }, []);
+    setLoading(true)
+    scheduleService.createSchedule(raidName, raidTime)
+      .then(async () => {
+        // Refresh schedules after creation
+        await fetchData()
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error("Error creating schedule:", error)
+        setLoading(false)
+      });
+  }
+
+  async function fetchScheduleById(scheduleId: string): Promise<number> {
+    const signUpRef = collection(db, "signups");
+    const q = query(signUpRef, where("schedule_id", "==", scheduleId));
+    const signUpQuerySnapshot = await getDocs(q);
+    const data = signUpQuerySnapshot.docs.map(doc => ({ ...(doc.data() as ISignUp), id: doc.id }));
+    return data.length;
+  }
+
+  async function signUp(scheduleId: string) {
+    setLoading(true)
+    const userId = localStorage.getItem("token") || "";
+    const userName = localStorage.getItem("username") || "Unknown User";
+    await scheduleService.signUpForSchedule(scheduleId, userId, userName)
+    setLoading(false)
+    await fetchData()
+  }
+
+  async function checkAlreadySignedUp() {
+    const userId = localStorage.getItem("token") || "";
+    const signUpRef = collection(db, "signups");
+    const q = query(signUpRef, where("user_id", "==", userId));
+    const signUpQuerySnapshot = await getDocs(q);
+    const data = signUpQuerySnapshot.docs.map(doc => ({ ...(doc.data() as ISignUp), id: doc.id }));
+    const signedUpScheduleIds = data.map(signUp => signUp.schedule_id);
+    setSignedUp(signedUpScheduleIds);
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
+    <>
+      <div className="h-screen flex justify-center bg-gray-100 w-full overflow-auto">
+        {/* Your schedule content */}
+        <div className="bg-white p-8 rounded shadow-md w-full max-w-4xl">
+          <div className="flex justify-between items-center mb-6 w-full">
+            <h1 className="text-2xl font-bold mb-4">Welcome to the schedule page!</h1>
+            <button
+              onClick={() => router.push("/")}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"
+            >
+              Switch User
+            </button>
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
+          <div className="flex justify-center gap-2 flex-wrap">
+            {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
+              <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
+              <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
+              <p className="mb-4">Sign-Ups: 
+                <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
+              </p>
+              {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
+                className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                onClick={() => signUp(schedule.id)}
+                disabled={loading}
+              >Register</button>}
+              {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
+                className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+              >Registered</button>}
+              {role === RolesType.SuperAdmin && <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                onClick={() => setSelectedScheduleId(schedule.id)}
+              >Check Lists</button>}
+            </div>))}
+            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center flex flex-col justify-between items-end rounded-lg shadow-md bg-white">
+              <input 
+                type="text" 
+                placeholder="Raid Name" 
+                className="w-full mb-2 p-2 border border-gray-300 rounded"
+                onChange={(e) => setRaidName(e.target.value)}
+              />
+              <input 
+                onChange={(e) => setRaidTime(e.target.value)} 
+                type="datetime-local" 
+                className="w-full mb-2 p-2 border border-gray-300 rounded"
+              />
+              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                onClick={createSchedule}
+                disabled={loading}
+              > + Create New Schedule</button>
+            </div>}
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition"
-          >
-            Sign In
-          </button>
-        </form>
-
-        <p className="text-sm text-center text-gray-500 mt-4">
-          Don't have an account?{" "}
-          <a href="#" className="text-indigo-600 hover:underline">
-            Sign up
-          </a>
-        </p>
-        {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
-        {loading && <p className="text-gray-500 text-sm text-center mt-4">Loading...</p>}
+        </div>
       </div>
-    </div>
+
+      {selectedScheduleId !== "" && <SignUpList scheduleId={selectedScheduleId} onClose={() => setSelectedScheduleId("")} />}
+    </>
   );
 }

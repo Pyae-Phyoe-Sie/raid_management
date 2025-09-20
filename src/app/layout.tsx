@@ -1,10 +1,12 @@
 "use client"
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { auth } from "@/app/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "./firebase";
+import { useRoleStore } from "@/store/useRoleStore"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +23,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const setRoles = useRoleStore((state) => state.setRoles)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -39,8 +43,22 @@ export default function RootLayout({
       }
     });
 
+    const fetchData = async () => {
+      await fetchSchedules();
+    };
+    fetchData();
+
     return () => unsubscribe()
   }, []);
+
+  async function fetchSchedules() {
+    // Fetch roles or other necessary data after login
+    const roleRef = collection(db, "roles");
+    const q = query(roleRef);
+    const roleQuerySnapshot = await getDocs(q);
+    const roles = roleQuerySnapshot.docs.map(doc => ({ ...(doc.data() as IRole), id: doc.id }));
+    setRoles(roles);
+  }
   
   return (
     <html lang="en">
