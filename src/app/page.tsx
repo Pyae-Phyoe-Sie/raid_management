@@ -51,6 +51,8 @@ export default function Login() {
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
         {/* Logo */}
         <Image
+          width={100}
+          height={100}
           src="/logo.png"
           alt="Never Idel Logo"
           className="mx-auto mb-4 h-16 w-auto rounded-lg"
@@ -99,7 +101,7 @@ export default function Login() {
 
         <p className="text-sm text-center text-gray-500 mt-4">
           Don&lsquo;t have an account?{" "}
-          <a className="text-indigo-600 hover:underline"
+          <a className="text-indigo-600 hover:underline cursor-pointer"
             onClick={() => router.push("/signup")}
           >
             Sign up

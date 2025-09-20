@@ -93,7 +93,7 @@ export default function Schedule() {
         {/* Your schedule content */}
         <div className="bg-white p-8 rounded shadow-md w-full max-w-4xl">
           <div className="flex justify-between items-center mb-6 w-full">
-            <h1 className="text-2xl font-bold mb-4">Welcome to the schedule page!</h1>
+            <h1 className="text-2xl font-bold">Active schedules</h1>
             <button
               onClick={() => router.push("/")}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"

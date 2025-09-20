@@ -96,7 +96,7 @@ export default function SignUp() {
 
         <p className="text-sm text-center text-gray-500 mt-4">
           Do you have an account?{" "}
-          <a className="text-indigo-600 hover:underline"
+          <a className="text-indigo-600 hover:underline  cursor-pointer"
             onClick={() => router.push("/")}
           >
             Sign In

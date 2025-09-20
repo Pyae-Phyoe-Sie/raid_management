@@ -38,7 +38,7 @@ export default function SignUpList({ scheduleId, onClose }: { scheduleId: string
     }
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-gray-900/[0.7] flex items-center justify-center z-50">
+    <div className="fixed top-0 left-0 w-full h-full bg-gray-900/[0.7] flex justify-center z-50 h-screen overflow-auto p-4">
         <div className="overflow-x-auto bg-gray-100 p-6 rounded-lg shadow-lg max-w-3xl w-full mx-4">
             <h2 className="text-2xl mb-4">Sign-Up List for <span className="font-bold">{schedule ? schedule.raid : "Loading..."}</span></h2>
             <table className="min-w-full border border-gray-200 divide-y divide-gray-200 rounded-lg shadow-sm">
