@@ -4,7 +4,7 @@ import "./globals.css";
 import { useEffect } from "react";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { auth } from "@/app/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "./firebase";
 import { useRoleStore } from "@/store/useRoleStore"
 
@@ -43,22 +43,17 @@ export default function RootLayout({
       }
     });
 
-    const fetchData = async () => {
-      await fetchSchedules();
+    const fetchSchedules = async () => {
+      const roleRef = collection(db, "roles");
+      const q = query(roleRef);
+      const roleQuerySnapshot = await getDocs(q);
+      const roles = roleQuerySnapshot.docs.map(doc => ({ ...(doc.data() as IRole), id: doc.id }));
+      setRoles(roles);
     };
-    fetchData();
+    fetchSchedules();
 
     return () => unsubscribe()
-  }, []);
-
-  async function fetchSchedules() {
-    // Fetch roles or other necessary data after login
-    const roleRef = collection(db, "roles");
-    const q = query(roleRef);
-    const roleQuerySnapshot = await getDocs(q);
-    const roles = roleQuerySnapshot.docs.map(doc => ({ ...(doc.data() as IRole), id: doc.id }));
-    setRoles(roles);
-  }
+  }, [setRoles]);
   
   return (
     <html lang="en">

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "./firebase"
 import { useRouter } from "next/navigation"
+import Image from "next/image";
 
 export default function Login() {
   const [name, setName] = useState("");
@@ -49,7 +50,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
         {/* Logo */}
-        <img
+        <Image
           src="/logo.png"
           alt="Never Idel Logo"
           className="mx-auto mb-4 h-16 w-auto rounded-lg"
@@ -97,7 +98,7 @@ export default function Login() {
         </form>
 
         <p className="text-sm text-center text-gray-500 mt-4">
-          Don't have an account?{" "}
+          Don&lsquo;t have an account?{" "}
           <a className="text-indigo-600 hover:underline"
             onClick={() => router.push("/signup")}
           >
