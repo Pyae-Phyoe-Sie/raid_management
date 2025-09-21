@@ -23,6 +23,11 @@ export default function Schedule() {
   const roleService = new RoleService();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/");
+      return;
+    }
     const fetchRoleAndData = async () => {
       const storedRole = localStorage.getItem("role") || "";
       setRole(await roleService.getRoleName(storedRole));
