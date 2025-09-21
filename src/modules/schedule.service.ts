@@ -5,7 +5,8 @@ import {
     addDoc, 
     Timestamp,
     doc,
-    deleteDoc
+    deleteDoc,
+    updateDoc
 } from "firebase/firestore"
 import { db } from "@/app/firebase";
 
@@ -29,6 +30,7 @@ export class ScheduleService {
             await addDoc(schedulesRef, {
                 raid,
                 date: timestamp,
+                freeze: false,
             });
 
             console.log("✅ Schedule created successfully");
@@ -62,6 +64,39 @@ export class ScheduleService {
             console.log("✅ Signed up for schedule successfully");
         } catch (error) {
             console.error("❌ Error signing up for schedule:", error);
+            throw error;
+        }
+    }
+
+    async deleteSignUp(signUpId: string): Promise<void> {
+        try {
+            const signUpRef = doc(db, "signups", signUpId);
+            await deleteDoc(signUpRef);
+            console.log("✅ Sign-up deleted successfully");
+        } catch (error) {
+            console.error("❌ Error deleting Sign-up:", error);
+            throw error;
+        }
+    }
+
+    async freezeSchedule(scheduleId: string): Promise<void> {
+        try {
+            const scheduleRef = doc(db, "schedules", scheduleId);
+            await updateDoc(scheduleRef, { freeze: true });
+            console.log("✅ Schedule frozen successfully");
+        } catch (error) {
+            console.error("❌ Error freezing schedule:", error);
+            throw error;
+        }
+    }
+
+    async unfreezeSchedule(scheduleId: string): Promise<void> {
+        try {
+            const scheduleRef = doc(db, "schedules", scheduleId);
+            await updateDoc(scheduleRef, { freeze: false });
+            console.log("✅ Schedule unfrozen successfully");
+        } catch (error) {
+            console.error("❌ Error unfreezing schedule:", error);
             throw error;
         }
     }

@@ -19,6 +19,7 @@ interface IRole {
 interface ISchedule {
     id: string,
     raid: string,
+    freeze: boolean,
     date: {
         seconds: number,
         nanoseconds: number
@@ -27,6 +28,7 @@ interface ISchedule {
 }
 
 interface ISignUp {
+    id: string
     schedule_id: string
     time: {
         seconds: number,

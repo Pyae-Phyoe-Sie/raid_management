@@ -119,10 +119,10 @@ export default function Schedule() {
                 onClick={() => setSelectedScheduleId(schedule.id)}
               >Check Lists</button>
               {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
-                className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                onClick={() => signUp(schedule.id)}
-                disabled={loading}
-              >Register</button>}
+                className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                onClick={() => !schedule.freeze && signUp(schedule.id)}
+                disabled={loading || !schedule.freeze}
+              >{schedule.freeze ? 'No more signups' : 'Register'}</button>}
               {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
                 className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
               >Registered</button>}
@@ -130,7 +130,7 @@ export default function Schedule() {
               <>
                 <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                   onClick={async () => {
-                    if (confirm("Are you sure you want to delete this schedule? This action cannot be undone.")) {
+                    if (confirm("Are you sure you want to delete this schedule?")) {
                       await scheduleService.deleteSchedule(schedule.id)
                       await fetchData()
                     }
@@ -159,7 +159,7 @@ export default function Schedule() {
         </div>
       </div>
 
-      {selectedScheduleId !== "" && <SignUpList scheduleId={selectedScheduleId} onClose={() => setSelectedScheduleId("")} />}
+      {selectedScheduleId !== "" && <SignUpList isAdmin={role === RolesType.SuperAdmin} scheduleId={selectedScheduleId} onClose={() => setSelectedScheduleId("")} />}
     </>
   );
 }
