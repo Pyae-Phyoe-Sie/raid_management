@@ -114,7 +114,7 @@ export default function Schedule() {
           </div>
 
           <div className="flex justify-center gap-2 flex-wrap">
-            {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
+            {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
               <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
               <div>
                 <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
@@ -142,7 +142,7 @@ export default function Schedule() {
                   >Delete</button>}
               </div>
             </div>))}
-            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
+            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
               <input 
                 type="text" 
                 placeholder="Raid Name" 
