@@ -88,7 +88,7 @@ export default function SignUpList({ isAdmin, scheduleId, onClose }: { isAdmin: 
                     <tr key={i} className={`hover:bg-gray-50 ${i > 14 ? "bg-yellow-100" : "bg-green-100"}`}>
                         <td className={`px-4 py-2 text-sm text-gray-800`}>{i + 1}</td>
                         <td className="px-4 py-2 text-sm text-gray-800">{s.user_name}</td>
-                        <td className="px-4 py-2 text-sm text-gray-800">{moment(s.time.seconds * 1000).format("MM-DD-YYYY HH:mm:ss")}</td>
+                        <td className="px-4 py-2 text-sm text-gray-800">{moment(s.time.seconds * 1000).format("DD MMM YYYY HH:mm:ss")}</td>
                         {isAdmin && <td className="px-4 py-2 text-sm text-gray-800">
                             <button className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
                                 onClick={() => deleteSignUp(s.id)}
