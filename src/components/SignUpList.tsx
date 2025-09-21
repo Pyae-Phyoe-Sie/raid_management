@@ -92,7 +92,7 @@ export default function SignUpList({ isAdmin, scheduleId, onClose }: { isAdmin: 
                         {isAdmin && <td className="px-4 py-2 text-sm text-gray-800">
                             <button className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
                                 onClick={() => deleteSignUp(s.id)}
-                            >Delete</button>
+                            >Reject</button>
                         </td>}
                     </tr>
                 ))}

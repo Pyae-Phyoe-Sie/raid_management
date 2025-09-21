@@ -95,9 +95,9 @@ export default function Schedule() {
 
   return (
     <>
-      <div className="h-screen flex justify-center bg-gray-100 w-full overflow-auto">
+      <div className="h-screen flex justify-center bg-gray-100 w-full">
         {/* Your schedule content */}
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-4xl">
+        <div className="p-8 shadow-md w-full max-w-4xl overflow-auto">
           <div className="flex justify-between items-center mb-6 w-full">
             <h1 className="text-2xl font-bold">Active schedules</h1>
             <button
@@ -111,32 +111,31 @@ export default function Schedule() {
           <div className="flex justify-center gap-2 flex-wrap">
             {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
               <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
-              <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
-              <p className="mb-4">Sign-Ups: 
-                <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
-              </p>
-              <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-2"
-                onClick={() => setSelectedScheduleId(schedule.id)}
-              >Check Lists</button>
-              {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
-                className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"}`}
-                onClick={() => !schedule.freeze && signUp(schedule.id)}
-                disabled={loading || schedule.freeze}
-              >{schedule.freeze ? 'No more signups' : 'Register'}</button>}
-              {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
-                className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-              >Registered</button>}
-              {role === RolesType.SuperAdmin && 
-              <>
-                <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                  onClick={async () => {
-                    if (confirm("Are you sure you want to delete this schedule?")) {
-                      await scheduleService.deleteSchedule(schedule.id)
-                      await fetchData()
-                    }
-                  }}
-                >Delete</button>
-              </>}
+              <div>
+                <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
+                <p className="mb-4">Sign-Ups: 
+                  <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
+                </p>
+                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-2"
+                  onClick={() => setSelectedScheduleId(schedule.id)}
+                >Check Lists</button>
+                {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
+                  className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
+                  onClick={() => !schedule.freeze && signUp(schedule.id)}
+                  disabled={loading || schedule.freeze}
+                >{schedule.freeze ? 'No more accept' : 'Sign-Up'}</button>}
+                {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
+                  className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+                >Signed-Up</button>}
+                {role === RolesType.SuperAdmin && <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    onClick={async () => {
+                      if (confirm("Are you sure you want to delete this schedule?")) {
+                        await scheduleService.deleteSchedule(schedule.id)
+                        await fetchData()
+                      }
+                    }}
+                  >Delete</button>}
+              </div>
             </div>))}
             {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
               <input 
