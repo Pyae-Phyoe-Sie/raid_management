@@ -6,7 +6,8 @@ import {
     Timestamp,
     doc,
     deleteDoc,
-    updateDoc
+    updateDoc,
+    where
 } from "firebase/firestore"
 import { db } from "@/app/firebase";
 
@@ -44,6 +45,12 @@ export class ScheduleService {
         try {
             const scheduleRef = doc(db, "schedules", scheduleId);
             await deleteDoc(scheduleRef);
+
+            const signupsRef = collection(db, "signups");
+            const q = query(signupsRef, where("schedule_id", "==", scheduleId));
+            const signupsSnapshot = await getDocs(q);
+            const deletePromises = signupsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+            await Promise.all(deletePromises);
             console.log("✅ Schedule deleted successfully");
         } catch (error) {
             console.error("❌ Error deleting schedule:", error);

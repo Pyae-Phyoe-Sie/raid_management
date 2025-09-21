@@ -121,7 +121,7 @@ export default function Schedule() {
               {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
                 className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"}`}
                 onClick={() => !schedule.freeze && signUp(schedule.id)}
-                disabled={loading || !schedule.freeze}
+                disabled={loading || schedule.freeze}
               >{schedule.freeze ? 'No more signups' : 'Register'}</button>}
               {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
                 className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
