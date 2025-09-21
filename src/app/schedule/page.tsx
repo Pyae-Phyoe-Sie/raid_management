@@ -81,8 +81,12 @@ export default function Schedule() {
 
   async function signUp(scheduleId: string) {
     setLoading(true)
-    const userId = localStorage.getItem("token") || "";
-    const userName = localStorage.getItem("username") || "Unknown User";
+    const userId = localStorage.getItem("token");
+    const userName = localStorage.getItem("username");
+    if (!userId || !userName) {
+      router.push("/")
+      return;
+    }
     await scheduleService.signUpForSchedule(scheduleId, userId, userName)
     setLoading(false)
     await fetchData()
