@@ -121,12 +121,12 @@ export default function Schedule() {
               >
                 Switch Account
               </button>
-              <button
+              {role === RolesType.SuperAdmin && <button
                 onClick={() => setShowUserList(true)}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer ml-2"
               >
                 Members
-              </button>
+              </button>}
             </div>
           </div>
 
