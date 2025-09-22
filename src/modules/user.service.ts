@@ -1,10 +1,19 @@
 import { 
     collection,
     addDoc,
+    getDocs
 } from "firebase/firestore"
 import { db } from "@/app/firebase";
 
 export class UserService {
+
+    async getUsers(): Promise<IUser[]> {
+        const usersRef = collection(db, "users");
+        const userSnapshot = await getDocs(usersRef);
+        const users = userSnapshot.docs.map(doc => ({ ...(doc.data() as IUser), id: doc.id }));
+        return users;
+    }
+
     async createUser(name: string, password: string): Promise<void> {
         try {
             const usersRef = collection(db, "users");

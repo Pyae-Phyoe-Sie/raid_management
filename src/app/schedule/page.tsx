@@ -9,6 +9,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/app/firebase"
 import { useRouter } from "next/navigation"
 import { RoleService } from "@/modules/role.service";
+import UserList from "@/components/UserList";
 
 export default function Schedule() {
   const [role, setRole] = useState<string | null>("");
@@ -21,6 +22,7 @@ export default function Schedule() {
   const [signedUp, setSignedUp] = useState<string[]>()
   const [loading, setLoading] = useState(false)
   const roleService = new RoleService();
+  const [showUserList, setShowUserList] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -112,12 +114,20 @@ export default function Schedule() {
         <div className="p-8 shadow-md w-full max-w-4xl overflow-auto">
           <div className="flex justify-between items-center mb-6 w-full">
             <h1 className="text-2xl font-bold">Active schedules</h1>
-            <button
-              onClick={() => router.push("/")}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"
-            >
-              Switch User
-            </button>
+            <div>
+              <button
+                onClick={() => router.push("/")}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"
+              >
+                Switch Account
+              </button>
+              <button
+                onClick={() => setShowUserList(true)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer ml-2"
+              >
+                Members
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-center gap-2 flex-wrap">
@@ -171,6 +181,7 @@ export default function Schedule() {
       </div>
 
       {selectedScheduleId !== "" && <SignUpList isAdmin={role === RolesType.SuperAdmin} scheduleId={selectedScheduleId} onClose={() => setSelectedScheduleId("")} />}
+        {showUserList && role === RolesType.SuperAdmin && <UserList onClose={() => setShowUserList(false)} />}
     </>
   );
 }
