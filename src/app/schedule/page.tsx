@@ -37,7 +37,9 @@ export default function Schedule() {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true)
     const data = await scheduleService.fetchSchedules();
+    data.sort((a, b) => a.date.seconds - b.date.seconds); // Sort by date ascending
 
     const schedulesWithSignups = await Promise.all(
       data.map(async (schedule) => ({
@@ -47,7 +49,8 @@ export default function Schedule() {
     );
 
     setSchedules(schedulesWithSignups)
-    checkAlreadySignedUp()
+    await checkAlreadySignedUp()
+    setLoading(false)
   };
 
   function createSchedule() {
@@ -132,7 +135,7 @@ export default function Schedule() {
                   className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
                   onClick={() => !schedule.freeze && signUp(schedule.id)}
                   disabled={loading || schedule.freeze}
-                >{schedule.freeze ? 'No more accept' : 'Sign-Up'}</button>}
+                >{loading ? 'Loading...' : schedule.freeze ? 'No more accept' : 'Sign-Up'}</button>}
                 {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
                   className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
                 >Signed-Up</button>}
