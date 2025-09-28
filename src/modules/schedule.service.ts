@@ -14,9 +14,25 @@ import { db } from "@/app/firebase";
 export class ScheduleService {
     // Schedule related methods would go here
     // Example method to fetch schedules
-    async fetchSchedules(): Promise<ISchedule[]> {
+    async fetchSchedules({
+        fromDate,
+        toDate
+    }: {
+        fromDate?: Date,
+        toDate?: Date
+    }): Promise<ISchedule[]> {
         const roleRef = collection(db, "schedules");
-        const q = query(roleRef);
+        const conditions = [];
+
+        if (fromDate) {
+            conditions.push(where("date", ">=", Timestamp.fromDate(fromDate)));
+        }
+
+        if (toDate) {
+            conditions.push(where("date", "<=", Timestamp.fromDate(toDate)));
+        }
+
+        const q = query(roleRef, ...conditions);
         const roleQuerySnapshot = await getDocs(q);
         const data = roleQuerySnapshot.docs.map(doc => ({ ...(doc.data() as ISchedule), id: doc.id }));
         return data;

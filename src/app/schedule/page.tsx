@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { ScheduleService } from "@/modules/schedule.service";
 import moment from "moment";
 import { RolesType } from "@/enum";
@@ -21,8 +21,15 @@ export default function Schedule() {
   const router = useRouter();
   const [signedUp, setSignedUp] = useState<string[]>()
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const roleService = new RoleService();
-  const [showUserList, setShowUserList] = useState(false);
+  const [showUserList, setShowUserList] = useState(false)
+  const [fromDate, setFromDate] = useState(
+    moment().startOf("week").format("YYYY-MM-DD") // Sunday
+  );
+  const [toDate, setToDate] = useState(
+    moment().startOf("week").add(6, "days").format("YYYY-MM-DD") // Saturday
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,9 +45,16 @@ export default function Schedule() {
     fetchRoleAndData();
   }, []);
 
+  useEffect(() => {
+    setToDate(moment(fromDate).startOf("week").add(6, "days").format("YYYY-MM-DD"));
+  }, [fromDate]);
+
   const fetchData = async () => {
-    setLoading(true)
-    const data = await scheduleService.fetchSchedules();
+    setFetching(true)
+    const data = await scheduleService.fetchSchedules({
+      fromDate: new Date(fromDate),
+      toDate: new Date(toDate),
+    })
     data.sort((a, b) => a.date.seconds - b.date.seconds); // Sort by date ascending
 
     const schedulesWithSignups = await Promise.all(
@@ -52,7 +66,7 @@ export default function Schedule() {
 
     setSchedules(schedulesWithSignups)
     await checkAlreadySignedUp()
-    setLoading(false)
+    setFetching(false)
   };
 
   function createSchedule() {
@@ -130,8 +144,38 @@ export default function Schedule() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-2 flex-wrap">
-            {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
+          <div className="flex gap-4 mb-4 w-full flex-row flex-wrap">
+            <div className="flex flex-row gap-2 items-center">
+              <label className="text-sm font-medium mb-1">From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="py-1 px-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div className="flex flex-row gap-2 items-center">
+              <label className="text-sm font-medium mb-1">To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="py-1 px-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div className="flex flex-row gap-2 items-center">
+              <button
+                onClick={fetchData}
+                className="px-4 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition cursor-pointer"
+                disabled={fetching}
+              >Search</button>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-2 flex-wrap bg-gray-300 py-3 rounded">
+            {fetching ? <div className="w-full text-center">Fetching...</div> : schedules.length === 0 ? <div className="w-full text-center">No schedules found.</div> : ""}
+            
+            {!fetching && schedules.length > 0 && schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
               <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
               <div>
                 <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
