@@ -125,26 +125,26 @@ export default function Schedule() {
     <>
       <div className="h-screen flex justify-center bg-gray-100 w-full">
         {/* Your schedule content */}
-        <div className="p-8 shadow-md w-full max-w-4xl overflow-auto">
+        <div className="px-8 py-4 shadow-md w-full max-w-4xl flex flex-col">
           <div className="flex justify-between items-center mb-6 w-full">
             <h1 className="text-2xl font-bold">Active schedules</h1>
             <div>
               <button
                 onClick={() => router.push("/")}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"
+                className="px-2 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer mb-2 mr-2"
               >
                 Switch Account
               </button>
               {role === RolesType.SuperAdmin && <button
                 onClick={() => setShowUserList(true)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer ml-2"
+                className="px-2 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition cursor-pointer"
               >
                 Members
               </button>}
             </div>
           </div>
 
-          <div className="flex gap-4 mb-4 w-full flex-row flex-wrap">
+          <div className="flex gap-4 w-full flex-row flex-wrap mb-2 border-b border-gray-300 pb-2">
             <div className="flex flex-row gap-2 items-center">
               <label className="text-sm font-medium mb-1">From Date</label>
               <input
@@ -172,9 +172,27 @@ export default function Schedule() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-2 flex-wrap bg-gray-300 py-3 rounded">
+          <div className="flex justify-center gap-2 flex-wrap bg-gray-300 py-3 rounded flex-1 overflow-auto">
+            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
+              <input 
+                type="text" 
+                placeholder="Raid Name" 
+                className="w-full mb-2 p-2 border border-gray-300 rounded"
+                onChange={(e) => setRaidName(e.target.value)}
+              />
+              <input 
+                onChange={(e) => setRaidTime(e.target.value)} 
+                type="datetime-local" 
+                className="w-full mb-2 p-2 border border-gray-300 rounded"
+              />
+              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-auto"
+                onClick={createSchedule}
+                disabled={loading}
+              > + Create New Schedule</button>
+            </div>}
+
             {fetching ? <div className="w-full text-center">Fetching...</div> : schedules.length === 0 ? <div className="w-full text-center">No schedules found.</div> : ""}
-            
+
             {!fetching && schedules.length > 0 && schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
               <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
               <div>
@@ -203,23 +221,6 @@ export default function Schedule() {
                   >Delete</button>}
               </div>
             </div>))}
-            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
-              <input 
-                type="text" 
-                placeholder="Raid Name" 
-                className="w-full mb-2 p-2 border border-gray-300 rounded"
-                onChange={(e) => setRaidName(e.target.value)}
-              />
-              <input 
-                onChange={(e) => setRaidTime(e.target.value)} 
-                type="datetime-local" 
-                className="w-full mb-2 p-2 border border-gray-300 rounded"
-              />
-              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-auto"
-                onClick={createSchedule}
-                disabled={loading}
-              > + Create New Schedule</button>
-            </div>}
           </div>
         </div>
       </div>
