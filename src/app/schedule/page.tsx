@@ -172,55 +172,57 @@ export default function Schedule() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-2 flex-wrap bg-gray-300 py-3 rounded flex-1 overflow-auto">
-            {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
-              <input 
-                type="text" 
-                placeholder="Raid Name" 
-                className="w-full mb-2 p-2 border border-gray-300 rounded"
-                onChange={(e) => setRaidName(e.target.value)}
-              />
-              <input 
-                onChange={(e) => setRaidTime(e.target.value)} 
-                type="datetime-local" 
-                className="w-full mb-2 p-2 border border-gray-300 rounded"
-              />
-              <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-auto"
-                onClick={createSchedule}
-                disabled={loading}
-              > + Create New Schedule</button>
-            </div>}
+          <div className="flex-1 relative flex flex-col overflow-auto">
+            <div className="flex justify-center gap-2 flex-wrap bg-gray-300 py-3 rounded flex-1 overflow-auto">
+              {role === RolesType.SuperAdmin && <div className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center flex flex-col rounded-lg shadow-md bg-white">
+                <input 
+                  type="text" 
+                  placeholder="Raid Name" 
+                  className="w-full mb-2 p-2 border border-gray-300 rounded"
+                  onChange={(e) => setRaidName(e.target.value)}
+                />
+                <input 
+                  onChange={(e) => setRaidTime(e.target.value)} 
+                  type="datetime-local" 
+                  className="w-full mb-2 p-2 border border-gray-300 rounded"
+                />
+                <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-auto"
+                  onClick={createSchedule}
+                  disabled={loading}
+                > + Create New Schedule</button>
+              </div>}
 
-            {fetching ? <div className="w-full text-center">Fetching...</div> : schedules.length === 0 ? <div className="w-full text-center">No schedules found.</div> : ""}
+              {fetching ? <div className="w-full bg-gray-300 text-center absolute top-0 left-0 bottom-0 right-0 flex items-center justify-center rounded">Fetching...</div> : schedules.length === 0 ? <div className="w-full text-center">No schedules found.</div> : ""}
 
-            {!fetching && schedules.length > 0 && schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
-              <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
-              <div>
-                <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
-                <p className="mb-4">Sign-Ups: 
-                  <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
-                </p>
-                <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-2"
-                  onClick={() => setSelectedScheduleId(schedule.id)}
-                >Check Lists</button>
-                {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
-                  className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
-                  onClick={() => !schedule.freeze && signUp(schedule.id)}
-                  disabled={loading || schedule.freeze}
-                >{loading ? 'Loading...' : schedule.freeze ? 'No more accept' : 'Sign-Up'}</button>}
-                {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
-                  className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-                >Signed-Up</button>}
-                {role === RolesType.SuperAdmin && <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                    onClick={async () => {
-                      if (confirm("Are you sure you want to delete this schedule?")) {
-                        await scheduleService.deleteSchedule(schedule.id)
-                        await fetchData()
-                      }
-                    }}
-                  >Delete</button>}
-              </div>
-            </div>))}
+              {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
+                <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
+                <div>
+                  <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
+                  <p className="mb-4">Sign-Ups: 
+                    <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
+                  </p>
+                  <button className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-2"
+                    onClick={() => setSelectedScheduleId(schedule.id)}
+                  >Check Lists</button>
+                  {role !== RolesType.SuperAdmin && !signedUp?.includes(schedule.id) && <button 
+                    className={`w-full text-white px-4 py-2 rounded ${schedule.freeze ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
+                    onClick={() => !schedule.freeze && signUp(schedule.id)}
+                    disabled={loading || schedule.freeze}
+                  >{loading ? 'Loading...' : schedule.freeze ? 'No more accept' : 'Sign-Up'}</button>}
+                  {role !== RolesType.SuperAdmin && signedUp?.includes(schedule.id) && <button 
+                    className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+                  >Signed-Up</button>}
+                  {role === RolesType.SuperAdmin && <button className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                      onClick={async () => {
+                        if (confirm("Are you sure you want to delete this schedule?")) {
+                          await scheduleService.deleteSchedule(schedule.id)
+                          await fetchData()
+                        }
+                      }}
+                    >Delete</button>}
+                </div>
+              </div>))}
+            </div>
           </div>
         </div>
       </div>
