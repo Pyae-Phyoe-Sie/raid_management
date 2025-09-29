@@ -197,7 +197,7 @@ export default function Schedule() {
               {schedules.map((schedule, i) => ( <div key={i} className="md:w-[48%] lg:w-[32%] max-w-[255px] p-4 border border-gray-300 text-center rounded-lg shadow-md bg-white flex flex-col justify-between">
                 <h2 className="text-xl font-semibold mb-2">{ schedule.raid }</h2>
                 <div>
-                  <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY HH:mm:ss") }</p>
+                  <p className="mb-2">{ moment(schedule.date.seconds * 1000).format("DD MMM YYYY") } { schedule.time }</p>
                   <p className="mb-4">Sign-Ups: 
                     <span className={`${schedule.signups < 12 ? "text-red-500" : "text-green-500" }`}> { schedule.signups ?? 0 }</span>
                   </p>
