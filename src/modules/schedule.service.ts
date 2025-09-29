@@ -44,9 +44,15 @@ export class ScheduleService {
             const timestamp = Timestamp.fromDate(jsDate);
             const schedulesRef = collection(db, "schedules");
 
+            const day = ("0" + jsDate.getDate()).slice(-2);
+            const monthName = jsDate.toLocaleString('default', { month: 'short' });
+            const year = jsDate.getFullYear();
+            
             await addDoc(schedulesRef, {
                 raid,
                 date: timestamp,
+                day: `${day} ${monthName} ${year}`,
+                time: date.split('T')[1],
                 freeze: false,
             });
 

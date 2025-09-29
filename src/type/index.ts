@@ -24,6 +24,7 @@ interface ISchedule {
         seconds: number,
         nanoseconds: number
     },
+    day?: string,
     time?: string,
     signups: number,
 }
